@@ -1,0 +1,20 @@
+{
+  "name": "betanet-backend",
+  "version": "1.0.0",
+  "description": "Betanet hotspot backend — M-Pesa Daraja + MikroTik RouterOS integration",
+  "main": "src/server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.18.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "nanoid": "^5.1.11",
+    "node-routeros": "^1.6.8"
+  }
+}
