@@ -1,16 +1,16 @@
 @import "tailwindcss";
 
 @theme {
-  /* Betanet color tokens */
-  --color-bn-navy: #0B1E3D;
-  --color-bn-navy-light: #122a52;
-  --color-bn-blue: #2563EB;
-  --color-bn-blue-dark: #1D4ED8;
-  --color-bn-sky: #60A5FA;
-  --color-bn-sky-light: #93C5FD;
-  --color-bn-bg: #F8FAFC;
+  /* BetaNet Solutions — brighter blue matching the poster */
+  --color-bn-navy: #1A56A0;
+  --color-bn-navy-light: #1E63BC;
+  --color-bn-blue: #2176CC;
+  --color-bn-blue-dark: #1A5FAF;
+  --color-bn-sky: #38BDF8;
+  --color-bn-sky-light: #7DD3FC;
+  --color-bn-bg: #F0F7FF;
   --color-bn-card: #FFFFFF;
-  --color-bn-slate: #475569;
+  --color-bn-slate: #334155;
   --color-bn-slate-light: #94A3B8;
   --color-bn-green: #16A34A;
   --color-bn-green-dark: #15803D;
@@ -22,18 +22,15 @@
 }
 
 @layer base {
-  html {
-    font-family: var(--font-body);
-  }
+  html { font-family: var(--font-body); }
 }
 
 @keyframes signal-pulse {
-  0% { opacity: 0.3; transform: scaleY(0.4); }
-  60% { opacity: 1; transform: scaleY(1); }
-  100% { opacity: 1; transform: scaleY(1); }
+  0%   { opacity: 0.2; transform: scaleY(0.3); }
+  70%  { opacity: 1;   transform: scaleY(1); }
+  100% { opacity: 1;   transform: scaleY(1); }
 }
-
 .signal-bar {
-  animation: signal-pulse 0.6s ease-out forwards;
+  animation: signal-pulse 0.5s ease-out forwards;
   transform-origin: bottom;
 }
