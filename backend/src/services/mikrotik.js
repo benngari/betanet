@@ -7,6 +7,10 @@
 //   MIKROTIK_PASSWORD
 //   MIKROTIK_PORT       8728 (plain) or 8729 (TLS) — default 8728
 //   MIKROTIK_USE_TLS    'true' to use the encrypted API port
+//   MIKROTIK_MOCK_MODE  'true' to skip real router calls entirely (demo/testing
+//                       without a router present). Auto-enables if MIKROTIK_HOST
+//                       is unset, so this is safe to deploy before you have a
+//                       router to point at.
 //
 // Each package maps to a RouterOS hotspot "user profile" (rate limit,
 // shared-users, etc.) that must already exist on the router — see README
@@ -15,6 +19,10 @@
 // Docs: https://help.mikrotik.com/docs/display/ROS/API
 
 const { RouterOSAPI } = require('node-routeros')
+
+function isMockMode() {
+  return process.env.MIKROTIK_MOCK_MODE === 'true' || !process.env.MIKROTIK_HOST
+}
 
 function buildClient() {
   return new RouterOSAPI({
@@ -36,8 +44,21 @@ function generateVoucherPassword() {
 /**
  * Creates (or replaces) a hotspot user for this phone number, scoped to the
  * purchased package's profile and uptime limit, then returns login creds.
+ * In mock mode, skips the router entirely and returns fake-but-valid-looking
+ * credentials so the rest of the flow (M-Pesa -> "you're connected") can be
+ * tested before a real router is in place.
  */
 async function provisionHotspotUser({ phone, profile, sessionSeconds }) {
+  if (isMockMode()) {
+    const password = generateVoucherPassword()
+    console.log(
+      `[MIKROTIK MOCK] Would create hotspot user "${phone}" on profile "${profile}" ` +
+        `with limit-uptime ${secondsToRouterOsDuration(sessionSeconds)}. ` +
+        `Set MIKROTIK_HOST (and MIKROTIK_MOCK_MODE=false) to use a real router.`
+    )
+    return { username: phone, password, mock: true }
+  }
+
   const client = buildClient()
   await client.connect()
 
@@ -62,7 +83,7 @@ async function provisionHotspotUser({ phone, profile, sessionSeconds }) {
       '=comment=betanet-auto',
     ])
 
-    return { username: phone, password }
+    return { username: phone, password, mock: false }
   } finally {
     client.close()
   }
@@ -72,6 +93,11 @@ async function provisionHotspotUser({ phone, profile, sessionSeconds }) {
  * Disconnects an active hotspot session early (e.g. on refund or abuse).
  */
 async function disconnectUser(phone) {
+  if (isMockMode()) {
+    console.log(`[MIKROTIK MOCK] Would disconnect hotspot user "${phone}".`)
+    return
+  }
+
   const client = buildClient()
   await client.connect()
   try {

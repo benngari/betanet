@@ -40,6 +40,41 @@ you change pricing or durations — keep both in sync.
 5. Returning customers within their paid window can tap **Already
    subscribed?** to re-check their access without paying again.
 
+**No router yet?** Set `MIKROTIK_MOCK_MODE=true` (or just leave
+`MIKROTIK_HOST` blank) and step 4 is simulated — the backend logs what it
+would have sent to the router and returns working-looking credentials, so
+you can test the whole M-Pesa flow and demo the UI before a physical router
+is in place. Check your deploy logs for lines starting with
+`[MIKROTIK MOCK]` to see what would have happened.
+
+## Deploying the backend to Railway
+
+Quickest way to get a public HTTPS URL for the backend while you don't yet
+have a router to reach (mock mode handles that — see "How it works" above).
+
+1. Go to [railway.app](https://railway.app) → New Project → Deploy from
+   GitHub repo → pick your `betanet` repo.
+2. In the new service's **Settings → Source**, set **Root Directory** to
+   `backend` — this repo has `frontend` and `backend` as sibling folders, so
+   Railway needs to be told which one to build.
+3. In **Variables**, add everything from `backend/.env.example`. At minimum
+   for a working demo without real M-Pesa yet:
+   ```
+   MIKROTIK_MOCK_MODE=true
+   PORT=4000
+   ```
+   Add the real `MPESA_*` values once you have Daraja sandbox credentials —
+   see "M-Pesa Daraja setup" below.
+4. Deploy. Railway gives you a URL like `betanet-backend.up.railway.app`.
+5. Set `MPESA_CALLBACK_URL` to `https://betanet-backend.up.railway.app/api/payments/mpesa-callback`
+   once you have that URL, then redeploy (env var changes need a redeploy to
+   take effect).
+6. On the frontend (Vercel), add an environment variable pointing the app
+   at this backend instead of the local dev proxy — ask me to wire this up
+   in `frontend/src/lib/api.js` once you have the Railway URL, since right
+   now it calls a relative `/api` path that only works against a local
+   backend.
+
 ## MikroTik setup
 
 The backend assumes these hotspot user **profiles** already exist on your
